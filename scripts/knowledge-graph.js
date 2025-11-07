@@ -662,11 +662,99 @@ function clearManufacturerSelection() {
             imageManagementContainer.appendChild(imageButtonGroup);
             videoManagementContainer.appendChild(videoButtonGroup);
             
+            // 创建3D模型管理容器
+            const modelManagementContainer = document.createElement('div');
+            modelManagementContainer.className = 'weapon-model-management';
+            modelManagementContainer.style.cssText = 'margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;';
+            
+            // 添加3D模型管理标题
+            const modelTitle = document.createElement('h4');
+            modelTitle.textContent = '武器3D模型管理';
+            modelTitle.style.cssText = 'margin: 0 0 10px 0; color: #fff; font-size: 14px;';
+            modelManagementContainer.appendChild(modelTitle);
+            
+            // 创建3D模型显示区域
+            const modelDisplayArea = document.createElement('div');
+            modelDisplayArea.id = 'weapon-model-display-area';
+            modelDisplayArea.className = 'weapon-model-display-area';
+            modelManagementContainer.appendChild(modelDisplayArea);
+            
+            // 创建3D模型操作按钮组
+            const modelButtonGroup = document.createElement('div');
+            modelButtonGroup.className = 'weapon-model-buttons';
+            modelButtonGroup.style.cssText = 'display: flex; gap: 8px; margin-top: 10px;';
+            
+            // 查看3D模型按钮
+            const view3DButton = document.createElement('button');
+            view3DButton.className = 'weapon-model-btn btn-primary';
+            view3DButton.innerHTML = '<i class="fas fa-cube"></i> 查看3D';
+            view3DButton.style.cssText = 'flex: 1; padding: 8px; border: none; border-radius: 4px; background: #e74c3c; color: white; cursor: pointer; font-size: 12px;';
+            
+            // 管理3D模型按钮
+            const manage3DButton = document.createElement('button');
+            manage3DButton.className = 'weapon-model-btn btn-info';
+            manage3DButton.innerHTML = '<i class="fas fa-cogs"></i> 管理3D';
+            manage3DButton.style.cssText = 'flex: 1; padding: 8px; border: none; border-radius: 4px; background: #f39c12; color: white; cursor: pointer; font-size: 12px;';
+            
+            // 添加悬停效果
+            [view3DButton, manage3DButton].forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    btn.style.opacity = '0.8';
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.opacity = '1';
+                });
+            });
+            
+            // 查看3D模型按钮事件
+            view3DButton.addEventListener('click', () => {
+                const weaponId = getWeaponId();
+                if (weaponId === null) {
+                    alert('无法获取武器ID，请稍后重试');
+                    return;
+                }
+                
+                // 检查3D模型管理器是否已加载
+                if (window.weaponModelManager && typeof window.weaponModelManager.showModelViewer === 'function') {
+                    window.weaponModelManager.showModelViewer(weaponId, node.properties.name);
+                } else {
+                    // 如果3D模型管理器还没加载，尝试动态加载
+                    console.log('3D模型管理器未加载，尝试动态加载...');
+                    loadModelManagerAndShow(weaponId, node.properties.name, 'showModelViewer');
+                }
+            });
+            
+            // 管理3D模型按钮事件
+            manage3DButton.addEventListener('click', () => {
+                const weaponId = getWeaponId();
+                if (weaponId === null) {
+                    alert('无法获取武器ID，请稍后重试');
+                    return;
+                }
+                
+                // 检查3D模型管理器是否已加载
+                if (window.weaponModelManager && typeof window.weaponModelManager.showModelManagement === 'function') {
+                    window.weaponModelManager.showModelManagement(weaponId, node.properties.name);
+                } else {
+                    // 如果3D模型管理器还没加载，尝试动态加载
+                    console.log('3D模型管理器未加载，尝试动态加载...');
+                    loadModelManagerAndShow(weaponId, node.properties.name, 'showModelManagement');
+                }
+            });
+            
+            // 将3D模型按钮添加到按钮组
+            modelButtonGroup.appendChild(view3DButton);
+            modelButtonGroup.appendChild(manage3DButton);
+            
+            // 将按钮组添加到容器
+            modelManagementContainer.appendChild(modelButtonGroup);
+            
             // 将整个管理容器添加到详情容器
             detailsContainer.appendChild(imageManagementContainer);
             detailsContainer.appendChild(videoManagementContainer);
+            detailsContainer.appendChild(modelManagementContainer);
             
-            // 自动加载并显示武器图片和视频缩略图
+            // 自动加载并显示武器图片、视频和3D模型缩略图
             const weaponId = getWeaponId();
             if (weaponId !== null) {
                 if (window.weaponImageManager) {
@@ -674,6 +762,9 @@ function clearManufacturerSelection() {
                 }
                 if (window.weaponVideoManager) {
                     window.weaponVideoManager.loadWeaponVideoThumbnails(weaponId, videoDisplayArea);
+                }
+                if (window.weaponModelManager) {
+                    window.weaponModelManager.loadWeaponModelThumbnails(weaponId, modelDisplayArea);
                 }
             }
         }
@@ -946,6 +1037,78 @@ function clearManufacturerSelection() {
     
     // 生成模拟数据
    
+    // 视图模式切换功能
+    const viewModeSelect = document.getElementById('viewMode');
+    if (viewModeSelect) {
+        viewModeSelect.addEventListener('change', function() {
+            const selectedMode = this.value;
+            const graphContainer = document.getElementById('graph-container');
+            const mapContainer = document.getElementById('map-container');
+            
+            if (selectedMode === 'map') {
+                // 切换到地图模式
+                graphContainer.style.display = 'none';
+                mapContainer.style.display = 'block';
+                
+                // 初始化地图可视化
+                if (window.worldMapVisualization) {
+                    window.worldMapVisualization.initialize();
+                } else {
+                    console.warn('世界地图可视化模块未加载');
+                }
+            } else {
+                // 切换到知识图谱模式
+                graphContainer.style.display = 'block';
+                mapContainer.style.display = 'none';
+            }
+        });
+    }
+    
+    // 国家数据加载和地图渲染功能
+    async function loadCountryDataAndRenderMap() {
+        try {
+            // 检查API集成模块是否已加载
+            if (!window.mapApiIntegration) {
+                console.error('地图API集成模块未加载');
+                return;
+            }
+            
+            // 加载国家数据
+            const countryData = await window.mapApiIntegration.getCountries();
+            
+            // 加载TopoJSON地图数据 - 使用正确的Natural Earth数据URL
+            const topoJsonUrl = 'https://cdn.jsdelivr.net/npm/world-atlas@1.1.4/world/110m.json';
+            const topoData = await d3.json(topoJsonUrl);
+            
+            // 初始化地图可视化
+            if (window.worldMapVisualization) {
+                await window.worldMapVisualization.render(topoData, countryData);
+            }
+        } catch (error) {
+            console.error('加载地图数据失败:', error);
+        }
+    }
+    
+    // 监听地图容器显示事件
+    const mapContainer = document.getElementById('map-container');
+    if (mapContainer) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    if (mapContainer.style.display === 'block') {
+                        // 地图容器显示时加载数据
+                        loadCountryDataAndRenderMap();
+                    }
+                }
+            });
+        });
+        
+        observer.observe(mapContainer, {
+            attributes: true,
+            attributeFilter: ['style']
+        });
+    }
+    
     // 初始化
     queryNeo4j();
     

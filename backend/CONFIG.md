@@ -6,7 +6,7 @@
 ```bash
 # 服务器配置
 NODE_ENV=development          # 运行环境: development(开发) / production(生产)
-PORT=3000                    # 服务器端口号
+PORT=3001                    # 服务器端口号
 HOST=localhost               # 服务器主机地址
 
 # JWT身份验证配置
@@ -86,7 +86,7 @@ echo "JWT_SECRET=my-new-super-secret-key-2024" >> backend/.env
 ```bash
 # 生产环境配置示例
 NODE_ENV=production
-PORT=3000
+PORT=3001
 HOST=0.0.0.0
 
 # 使用强密钥 (32位以上随机字符)
@@ -127,9 +127,11 @@ npm run dev
 查看启动日志确认配置是否正确：
 ```
 info: 兵智世界后端服务启动成功 (简化版)
-info: 服务器运行在端口: 3000
+info: 服务器运行在端口: 3001
 info: 环境: development
-info: 数据库: SQLite
+info: 数据库: SQLite (./data/military-knowledge.db)
+info: 日志: ./logs/app.log
+info: 限流: 15分钟最多1000次请求
 ```
 
 ## 常见配置问题

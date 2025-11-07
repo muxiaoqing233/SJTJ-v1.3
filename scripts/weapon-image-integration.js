@@ -4,62 +4,264 @@ class WeaponImageManager {
         this.currentWeaponId = null;
         this.currentWeaponName = null;
         this.isUploading = false;
+        this.cachedImages = []; // 添加缓存
         this.init();
     }
 
     init() {
         this.bindEvents();
+        console.log('✅ 武器图片管理器初始化完成');
+    }
+
+    // 创建图片管理面板
+    createImageManagementPanel() {
+        const panel = document.createElement('div');
+        panel.id = 'weaponImageSection';
+        panel.className = 'weapon-image-management-panel';
+        panel.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 1200px;
+            max-height: 85vh;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            display: none;
+            overflow: hidden;
+        `;
+        
+        panel.innerHTML = `
+            <div class="weapon-image-panel-header" style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            ">
+                <h3 class="weapon-image-panel-title" style="margin: 0; font-size: 20px;">
+                    <i class="fas fa-images"></i> 武器图片管理
+                </h3>
+                <button class="weapon-image-panel-close" onclick="weaponImageManager.hideWeaponImageSection()" style="
+                    background: rgba(255,255,255,0.2);
+                    border: none;
+                    color: white;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    font-size: 18px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                ">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="weapon-image-panel-body" style="
+                padding: 20px;
+                max-height: calc(85vh - 80px);
+                overflow-y: auto;
+            ">
+                <div id="imageMessage" class="image-message" style="display: none;"></div>
+                
+                <div id="imageUploadArea" style="display: none; margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 15px 0; color: #333;">
+                        <i class="fas fa-cloud-upload-alt"></i> 上传新图片
+                    </h4>
+                    <div class="file-input-wrapper" onclick="document.getElementById('weaponImageFile').click()" style="
+                        border: 2px dashed #ddd;
+                        border-radius: 8px;
+                        padding: 30px;
+                        text-align: center;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                        background: white;
+                        margin-bottom: 15px;
+                    ">
+                        <div class="file-input-content">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #667eea; margin-bottom: 10px;"></i>
+                            <div style="color: #333; font-size: 16px; margin-bottom: 5px;">点击选择图片文件</div>
+                            <small style="color: #666;">支持 JPG, PNG, GIF, WebP 格式，最大 5MB</small>
+                        </div>
+                    </div>
+                    <input type="file" id="weaponImageFile" accept="image/*" style="display: none;">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #333;">图片描述：</label>
+                        <textarea id="weaponImageDescription" rows="3" placeholder="请输入图片描述..."
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
+                    </div>
+                    <div class="upload-actions" style="display: flex; gap: 10px;">
+                        <button id="confirmUploadBtn" class="btn-primary" style="
+                            flex: 1;
+                            padding: 10px;
+                            background: #667eea;
+                            color: white;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 14px;
+                        ">
+                            <i class="fas fa-check"></i> 确认上传
+                        </button>
+                        <button id="cancelUploadBtn" class="btn-secondary" style="
+                            flex: 1;
+                            padding: 10px;
+                            background: #6c757d;
+                            color: white;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 14px;
+                        ">
+                            <i class="fas fa-times"></i> 取消
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="weapon-images-header" style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                ">
+                    <h4 style="margin: 0; color: #333;">
+                        <i class="fas fa-images"></i> 图片列表
+                    </h4>
+                    <button id="uploadImageBtn" class="btn-primary" style="
+                        padding: 8px 16px;
+                        background: #667eea;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 14px;
+                    ">
+                        <i class="fas fa-plus"></i> 上传图片
+                    </button>
+                </div>
+                
+                <div id="weaponImagesGrid" class="weapon-images-grid" style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                    gap: 20px;
+                "></div>
+            </div>
+        `;
+        
+        return panel;
     }
 
     bindEvents() {
+        // 这个方法用于页面初始化时，不做任何事
+        // 实际绑定在bindPanelEvents中
+    }
+    
+    // 绑定面板事件（面板创建后调用）
+    bindPanelEvents() {
         // 上传按钮点击事件
-        document.getElementById('uploadImageBtn')?.addEventListener('click', () => {
-            this.toggleUploadArea();
-        });
+        const uploadBtn = document.getElementById('uploadImageBtn');
+        if (uploadBtn && !uploadBtn.dataset.bound) {
+            uploadBtn.addEventListener('click', () => {
+                this.toggleUploadArea();
+            });
+            uploadBtn.dataset.bound = 'true';
+        }
 
         // 确认上传按钮
-        document.getElementById('confirmUploadBtn')?.addEventListener('click', () => {
-            this.uploadImage();
-        });
+        const confirmBtn = document.getElementById('confirmUploadBtn');
+        if (confirmBtn && !confirmBtn.dataset.bound) {
+            confirmBtn.addEventListener('click', () => {
+                this.uploadImage();
+            });
+            confirmBtn.dataset.bound = 'true';
+        }
 
         // 取消上传按钮
-        document.getElementById('cancelUploadBtn')?.addEventListener('click', () => {
-            this.hideUploadArea();
-        });
+        const cancelBtn = document.getElementById('cancelUploadBtn');
+        if (cancelBtn && !cancelBtn.dataset.bound) {
+            cancelBtn.addEventListener('click', () => {
+                this.hideUploadArea();
+            });
+            cancelBtn.dataset.bound = 'true';
+        }
 
         // 文件选择事件
-        document.getElementById('weaponImageFile')?.addEventListener('change', (e) => {
-            this.handleFileSelect(e);
-        });
-    }
-
-    // 显示武器图片管理区域
-    showWeaponImageSection(weaponId, weaponName) {
-        this.currentWeaponId = weaponId;
-        this.currentWeaponName = weaponName;
-        
-        const section = document.getElementById('weaponImageSection');
-        if (section) {
-            section.style.display = 'block';
-            this.loadWeaponImages();
+        const fileInput = document.getElementById('weaponImageFile');
+        if (fileInput && !fileInput.dataset.bound) {
+            fileInput.addEventListener('change', (e) => {
+                this.handleFileSelect(e);
+            });
+            fileInput.dataset.bound = 'true';
         }
     }
 
+    // 显示武器图片管理区域（创建浮动面板）
+    showWeaponImageSection(weaponId, weaponName) {
+        console.log('📋 显示武器图片管理区域:', weaponId, weaponName);
+        this.currentWeaponId = weaponId;
+        this.currentWeaponName = weaponName;
+        
+        // 创建或获取浮动面板
+        let section = document.getElementById('weaponImageSection');
+        if (!section) {
+            section = this.createImageManagementPanel();
+            document.body.appendChild(section);
+            // 需要重新绑定事件，因为是新创建的元素
+            this.bindPanelEvents();
+        }
+        
+        // 更新标题
+        const title = section.querySelector('.weapon-image-panel-title');
+        if (title) {
+            title.textContent = `${weaponName} - 图片管理`;
+        }
+        
+        section.style.display = 'block';
+        this.loadWeaponImages();
+    }
+
     // 显示武器图片（兼容knowledge-graph.js调用）
-    showWeaponImages(weaponId, weaponName) {
-        this.showWeaponImageSection(weaponId, weaponName);
+    async showWeaponImages(weaponId, weaponName) {
+        console.log('🖼️ 显示武器图片:', weaponId, weaponName);
+        this.currentWeaponId = weaponId;
+        this.currentWeaponName = weaponName;
+        
+        // 加载图片并显示第一张
+        try {
+            const response = await fetch(`http://localhost:3001/api/weapon-images/${weaponId}`);
+            const data = await response.json();
+            
+            if (data.success && data.data.images && data.data.images.length > 0) {
+                this.cachedImages = data.data.images;
+                this.currentWeaponName = weaponName || data.data.weaponName;
+                // 直接打开灯箱显示第一张图片
+                this.openLightbox(data.data.images[0].id);
+            } else {
+                alert('该武器暂无图片');
+            }
+        } catch (error) {
+            console.error('加载武器图片失败:', error);
+            alert('加载图片失败，请检查后端服务是否启动');
+        }
     }
 
     // 显示上传对话框（兼容knowledge-graph.js调用）
     showUploadDialog(weaponId, weaponName) {
+        console.log('📤 显示上传对话框:', weaponId, weaponName);
         this.currentWeaponId = weaponId;
         this.currentWeaponName = weaponName;
         this.showWeaponImageSection(weaponId, weaponName);
-        this.showUploadArea();
+        setTimeout(() => this.showUploadArea(), 100);
     }
 
     // 显示管理对话框（兼容knowledge-graph.js调用）
     showManagementDialog(weaponId, weaponName) {
+        console.log('⚙️ 显示管理对话框:', weaponId, weaponName);
         this.showWeaponImageSection(weaponId, weaponName);
     }
 
@@ -88,13 +290,13 @@ class WeaponImageManager {
                 displayArea.innerHTML = `
                     <div class="weapon-thumbnails">
                         ${images.map(image => `
-                            <div class="thumbnail-item" onclick="weaponImageManager.openLightbox(${image.id})">
+                            <div class="thumbnail-item" onclick="weaponImageManager.openLightboxDirectly(${image.id})" style="cursor: pointer;">
                                 <img src="http://localhost:3001${image.path}" alt="${image.description || '武器图片'}" 
                                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA2MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yMCAxNUgzMFYyNUgyMFYxNVoiIGZpbGw9IiNEREQiLz4KPHBhdGggZD0iTTIyIDE3SDI4VjIzSDIyVjE3WiIgZmlsbD0iI0JCQiIvPgo8dGV4dCB4PSIzMCIgeT0iMzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5OTkiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI4Ij7lm77niYc8L3RleHQ+Cjwvc3ZnPg=='"
                                      style="width: 50px; height: 35px; object-fit: cover; border-radius: 4px; margin-right: 5px;">
                             </div>
                         `).join('')}
-                        ${data.data.images.length > 3 ? `<div class="thumbnail-more">+${data.data.images.length - 3}</div>` : ''}
+                        ${data.data.images.length > 3 ? `<div class="thumbnail-more" style="cursor: pointer;" onclick="weaponImageManager.showWeaponImages(${weaponId}, '${data.data.weaponName}')">+${data.data.images.length - 3}</div>` : ''}
                     </div>
                 `;
             } else {
@@ -124,6 +326,7 @@ class WeaponImageManager {
         }
         this.currentWeaponId = null;
         this.currentWeaponName = null;
+        this.cachedImages = [];
         this.hideUploadArea();
     }
 
@@ -492,13 +695,64 @@ class WeaponImageManager {
 
     // 打开灯箱
     openLightbox(imageId) {
+        console.log('🔎 打开灯箱，图片ID:', imageId);
+        console.log('📋 当前缓存图片:', this.cachedImages);
+        
         const images = this.getCurrentImages();
+        if (!images || images.length === 0) {
+            console.error('❗ 无法获取图片数据');
+            this.showMessage('无法加载图片', 'error');
+            return;
+        }
+        
         const image = images.find(img => img.id === imageId);
         
         if (!image) {
+            console.error('❗ 图片不存在，ID:', imageId);
             this.showMessage('图片不存在', 'error');
             return;
         }
+        
+        console.log('✅ 找到图片，开始显示灯箱:', image);
+        this.renderLightbox(image);
+    }
+    
+    // 从缩略图直接打开灯箱（先加载图片数据）
+    async openLightboxDirectly(imageId) {
+        console.log('🔗 从缩略图打开灯箱，图片ID:', imageId);
+        
+        // 如果没有缓存，先加载
+        if (!this.cachedImages || this.cachedImages.length === 0) {
+            if (!this.currentWeaponId) {
+                console.error('❗ 无法加载图片：缺少武器ID');
+                this.showMessage('无法加载图片', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/weapon-images/${this.currentWeaponId}`);
+                const data = await response.json();
+                
+                if (data.success && data.data.images) {
+                    this.cachedImages = data.data.images;
+                    console.log('✅ 加载图片数据成功:', this.cachedImages.length, '张');
+                } else {
+                    throw new Error(data.message || '加载失败');
+                }
+            } catch (error) {
+                console.error('❗ 加载图片失败:', error);
+                this.showMessage('加载图片失败', 'error');
+                return;
+            }
+        }
+        
+        // 打开灯箱
+        this.openLightbox(imageId);
+    }
+    
+    // 渲染灯箱
+    renderLightbox(image) {
+        console.log('🎨 开始渲染灯箱，图片信息:', image);
 
         // 创建灯箱HTML
         const lightboxHtml = `
@@ -597,10 +851,7 @@ class WeaponImageManager {
 
     // 获取当前图片数据
     getCurrentImages() {
-        const grid = document.getElementById('weaponImagesGrid');
-        if (!grid || !this.currentWeaponId) return [];
-        
-        // 从DOM中获取当前显示的图片数据，或者从缓存中获取
+        // 直接返回缓存数据，不依赖DOM元素
         return this.cachedImages || [];
     }
 

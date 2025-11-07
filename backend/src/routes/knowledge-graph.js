@@ -250,4 +250,235 @@ function findMatchingManufacturer(weapon, manufacturers) {
     return null;
 }
 
+// 获取世界地图国家数据
+/**
+ * 获取国家详细信息
+ */
+router.get('/country-details/:countryName', (req, res) => {
+    try {
+        const countryName = decodeURIComponent(req.params.countryName);
+        const db = new Database(path.join(__dirname, '../../data/military-knowledge.db'));
+        
+        // 获取国家基本信息
+        const countryInfo = db.prepare(`
+            SELECT id, name, code
+            FROM countries
+            WHERE name = ?
+        `).get(countryName);
+        
+        if (!countryInfo) {
+            db.close();
+            return res.status(404).json({
+                success: false,
+                message: '国家不存在'
+            });
+        }
+        
+        // 获取武器数量
+        const weaponCount = db.prepare(`
+            SELECT COUNT(*) as count
+            FROM weapons
+            WHERE country = ?
+        `).get(countryName).count;
+        
+        // 获取制造商数量
+        const manufacturerCount = db.prepare(`
+            SELECT COUNT(*) as count
+            FROM manufacturers
+            WHERE country = ?
+        `).get(countryName).count;
+        
+        // 获取武器类型分布
+        const weaponTypes = db.prepare(`
+            SELECT type, COUNT(*) as count
+            FROM weapons
+            WHERE country = ?
+            GROUP BY type
+            ORDER BY count DESC
+        `).all(countryName);
+        
+        // 获取武器列表（前20个）
+        const weapons = db.prepare(`
+            SELECT id, name, type, year, description
+            FROM weapons
+            WHERE country = ?
+            ORDER BY year DESC
+            LIMIT 20
+        `).all(countryName);
+        
+        // 获取制造商列表（前20个）
+        const manufacturers = db.prepare(`
+            SELECT id, name, founded, description
+            FROM manufacturers
+            WHERE country = ?
+            ORDER BY name
+            LIMIT 20
+        `).all(countryName);
+        
+        db.close();
+        
+        // 中英文国家名称映射
+        const countryNameMapping = {
+            '中国': 'China',
+            '美国': 'United States',
+            '俄罗斯': 'Russia',
+            '德国': 'Germany',
+            '法国': 'France',
+            '英国': 'United Kingdom',
+            '日本': 'Japan',
+            '韩国': 'South Korea',
+            '印度': 'India',
+            '以色列': 'Israel',
+            '意大利': 'Italy',
+            '西班牙': 'Spain',
+            '加拿大': 'Canada',
+            '澳大利亚': 'Australia'
+        };
+        
+        res.json({
+            success: true,
+            data: {
+                basicInfo: {
+                    id: countryInfo.id,
+                    chineseName: countryInfo.name,
+                    englishName: countryNameMapping[countryInfo.name] || countryInfo.name,
+                    code: countryInfo.code || ''
+                },
+                statistics: {
+                    weaponCount,
+                    manufacturerCount,
+                    weaponTypeCount: weaponTypes.length
+                },
+                weaponTypes,
+                weapons,
+                manufacturers
+            }
+        });
+        
+    } catch (error) {
+        console.error('获取国家详情失败:', error);
+        res.status(500).json({
+            success: false,
+            message: '获取国家详情失败',
+            error: error.message
+        });
+    }
+});
+
+router.get('/world-map-data', (req, res) => {
+    try {
+        const db = new Database(path.join(__dirname, '../../data/military-knowledge.db'));
+        
+        // 获取所有国家数据，包括武器数量统计和经纬度坐标
+        const countries = db.prepare(`
+            SELECT 
+                c.id, 
+                c.name, 
+                c.code,
+                c.latitude,
+                c.longitude,
+                COUNT(w.id) as weaponCount
+            FROM countries c
+            LEFT JOIN weapons w ON c.name = w.country
+            GROUP BY c.id, c.name, c.code, c.latitude, c.longitude
+            ORDER BY c.name
+        `).all();
+        
+        db.close();
+        
+        // 中英文国家名称映射表
+        const countryNameMapping = {
+            '中国': 'China',
+            '美国': 'United States',
+            '俄罗斯': 'Russia',
+            '德国': 'Germany',
+            '法国': 'France',
+            '英国': 'United Kingdom',
+            '日本': 'Japan',
+            '韩国': 'South Korea',
+            '印度': 'India',
+            '以色列': 'Israel',
+            '意大利': 'Italy',
+            '西班牙': 'Spain',
+            '加拿大': 'Canada',
+            '澳大利亚': 'Australia',
+            '巴西': 'Brazil',
+            '阿根廷': 'Argentina',
+            '墨西哥': 'Mexico',
+            '南非': 'South Africa',
+            '埃及': 'Egypt',
+            '土耳其': 'Turkey',
+            '伊朗': 'Iran',
+            '沙特阿拉伯': 'Saudi Arabia',
+            '巴基斯坦': 'Pakistan',
+            '朝鲜': 'North Korea',
+            '越南': 'Vietnam',
+            '泰国': 'Thailand',
+            '马来西亚': 'Malaysia',
+            '印度尼西亚': 'Indonesia',
+            '菲律宾': 'Philippines',
+            '波兰': 'Poland',
+            '乌克兰': 'Ukraine',
+            '瑞典': 'Sweden',
+            '挪威': 'Norway',
+            '芬兰': 'Finland',
+            '丹麦': 'Denmark',
+            '荷兰': 'Netherlands',
+            '比利时': 'Belgium',
+            '瑞士': 'Switzerland',
+            '奥地利': 'Austria',
+            '捷克': 'Czech Republic',
+            '匈牙利': 'Hungary',
+            '罗马尼亚': 'Romania',
+            '希腊': 'Greece',
+            '新西兰': 'New Zealand'
+        };
+        
+        // 构建地图数据，直接使用数据库中的经纬度坐标
+        const mapData = countries
+            .filter(country => country.latitude !== null && country.longitude !== null) // 过滤掉没有坐标的国家
+            .map(country => {
+                const englishName = countryNameMapping[country.name] || country.name;
+                return {
+                    id: country.id,
+                    chineseName: country.name,
+                    englishName: englishName,
+                    code: country.code || '',
+                    weaponCount: country.weaponCount || 0,
+                    latitude: country.latitude,
+                    longitude: country.longitude,
+                    coordinates: [country.longitude, country.latitude] // [lng, lat] 格式用于D3投影
+                };
+            });
+        
+        // 统计信息
+        const totalCountries = countries.length;
+        const countriesWithCoords = mapData.length;
+        const countriesWithoutCoords = totalCountries - countriesWithCoords;
+        
+        console.log(`世界地图数据: 总计${totalCountries}个国家, ${countriesWithCoords}个有坐标, ${countriesWithoutCoords}个无坐标`);
+        
+        res.json({
+            success: true,
+            data: {
+                countries: mapData,
+                mapping: countryNameMapping,
+                statistics: {
+                    total: totalCountries,
+                    withCoordinates: countriesWithCoords,
+                    withoutCoordinates: countriesWithoutCoords
+                }
+            }
+        });
+        
+    } catch (error) {
+        console.error('获取世界地图数据失败:', error);
+        res.status(500).json({
+            success: false,
+            message: '获取世界地图数据失败',
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;

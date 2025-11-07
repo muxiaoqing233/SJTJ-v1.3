@@ -3014,3 +3014,80 @@
     at Server.listen (node:net:2102:7)
     at app.listen (D:\K\兵智世界v1.3\backend\node_modules\express\lib\application.js:635:24)
     at SimpleApp.start (D:\K\兵智世界v1.3\backend\src\app-simple.js:222:30)
+2025-09-16 00:08:29 [ERROR]: Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (D:\K\兵智世界v1.3\backend\node_modules\express\lib\application.js:635:24)
+    at SimpleApp.start (D:\K\兵智世界v1.3\backend\src\app-simple.js:226:30)
+2025-09-17 01:28:58 [ERROR]: Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (D:\K\兵智世界v1.3\backend\node_modules\express\lib\application.js:635:24)
+    at SimpleApp.start (D:\K\兵智世界v1.3\backend\src\app-simple.js:226:30)
+2025-09-17 01:33:13 [ERROR]: Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (D:\K\兵智世界v1.3\backend\node_modules\express\lib\application.js:635:24)
+    at SimpleApp.start (D:\K\兵智世界v1.3\backend\src\app-simple.js:226:30)
+2025-10-20 19:09:59 [ERROR]: Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (D:\K\兵智世界v1.3\backend\node_modules\express\lib\application.js:635:24)
+    at SimpleApp.start (D:\K\兵智世界v1.3\backend\src\app-simple.js:226:30)
+2025-10-22 14:46:39 [ERROR]: Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (D:\K\兵智世界v1.3\backend\node_modules\express\lib\application.js:635:24)
+    at SimpleApp.start (D:\K\兵智世界v1.3\backend\src\app-simple.js:226:30)
+2025-10-22 17:46:20 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:25:31 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:25:44 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:25:45 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:25:46 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:26:01 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:31:01 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:31:02 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:31:03 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:31:23 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:31:23 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:31:24 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:31:24 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:31:24 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:31:24 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:32:44 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:34:15 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:34:15 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:34:17 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:34:19 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:34:19 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:34:19 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:34:38 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:34:39 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:35:50 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:37:30 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:38:23 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:38:41 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 14:49:12 [ERROR]: Error: SQLITE_ERROR: ambiguous column name: country
+2025-10-28 15:22:23 [ERROR]: Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (D:\K\兵智世界v1.3\backend\node_modules\express\lib\application.js:635:24)
+    at SimpleApp.start (D:\K\兵智世界v1.3\backend\src\app-simple.js:226:30)
+2025-10-28 15:45:37 [ERROR]: Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (D:\K\兵智世界v1.3\backend\node_modules\express\lib\application.js:635:24)
+    at SimpleApp.start (D:\K\兵智世界v1.3\backend\src\app-simple.js:226:30)
+2025-10-28 15:47:01 [ERROR]: Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (D:\K\兵智世界v1.3\backend\node_modules\express\lib\application.js:635:24)
+    at SimpleApp.start (D:\K\兵智世界v1.3\backend\src\app-simple.js:226:30)

@@ -97,6 +97,9 @@ class SimpleApp {
         endpoints: {
           auth: '/api/auth',
           weapons: '/api/weapons',
+          weaponImages: '/api/weapon-images',
+          weaponVideos: '/api/weapon-videos',
+          weaponModels: '/api/weapon-models',
           manufacturers: '/api/manufacturers',
           manufacturerStatistics: '/api/manufacturer-statistics',
           weaponTypes: '/api/weapon-types',
@@ -111,6 +114,7 @@ class SimpleApp {
     this.app.use('/api/weapons', weaponRoutes);
     this.app.use('/api/weapon-images', require('./routes/weapon-images'));
     this.app.use('/api/weapon-videos', require('./routes/weapon-videos'));
+    this.app.use('/api/weapon-models', require('./routes/weapon-models'));
     this.app.use('/api/manufacturers', require('./routes/manufacturers'));
     this.app.use('/api/manufacturer-statistics', require('./routes/manufacturer-statistics'));
     this.app.use('/api/weapon-types', require('./routes/weapon-types'));

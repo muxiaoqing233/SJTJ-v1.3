@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 如果没有数据，每2秒检查一次，最多检查10次
         let attempts = 0;
-        const maxAttempts = 10;
+        const maxAttempts = 1;
         const interval = setInterval(() => {
             attempts++;
             console.log(`第${attempts}次尝试获取数据...`);

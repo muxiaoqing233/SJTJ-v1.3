@@ -10,7 +10,7 @@
 - **缓存**: 内存缓存 (替代Redis)
 - **身份验证**: JWT
 - **数据验证**: Joi
-- **日志管理**: Winston
+- **日志管理**: Winston1
 
 ### 核心模块
 ```
@@ -89,7 +89,7 @@ LOG_FILE=./logs/app.log
 
 # API限流配置
 RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=100
+RATE_LIMIT_MAX_REQUESTS=1000
 ```
 
 ### 重要说明

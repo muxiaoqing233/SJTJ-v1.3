@@ -14,8 +14,13 @@
     <link rel="stylesheet" href="styles/weapon-image-lightbox.css">
     <link rel="stylesheet" href="styles/weapon-image-integration-thumbnails.css">
     <link rel="stylesheet" href="styles/weapon-video-integration.css">
-    <!-- 引入D3.js库 -->
+    <link rel="stylesheet" href="styles/weapon-model-integration.css">
+    <!-- 引入世界地图样式 -->
+    <link rel="stylesheet" href="styles/world-map.css">
+    <!-- 引入D3.js库（v7版本已包含所有必要模块） -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- 引入TopoJSON库 -->
+    <script src="https://unpkg.com/topojson-client@3"></script>
     <!-- 引入Neo4j JavaScript驱动 -->
     <script src="https://unpkg.com/neo4j-driver"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -71,10 +76,15 @@
                         <option value="IS_TYPE_OF">类型为</option>
                     </select>
                 </div>
+                <div class="filter-group">
+                    <label for="viewMode">视图模式:</label>
+                    <select id="viewMode">
+                        <option value="graph">知识图谱</option>
+                        <option value="map">世界地图</option>
+                    </select>
+                </div>
             </div>
 
-            
-            
             <div class="graph-controls">
                 <button id="zoomInBtn"><i class="fas fa-search-plus"></i> 放大</button>
                 <button id="zoomOutBtn"><i class="fas fa-search-minus"></i> 缩小</button>
@@ -83,7 +93,8 @@
                 <button id="dataManageBtn" class="data-manage-btn"><i class="fas fa-database"></i> 数据管理</button>
             </div>
             
-            <div class="knowledge-graph-container">
+            <!-- 知识图谱容器 -->
+            <div id="graph-container" class="knowledge-graph-container">
                 <div class="graph-legend">
                     <h3>图例</h3>
                     <div class="legend-item">
@@ -111,169 +122,131 @@
                     <div id="nodeDetails">
                         <p>点击节点查看详细信息</p>
                     </div>
-                    <!-- 武器图片管理区域 -->
-                    <div id="weaponImageSection" class="weapon-image-section" style="display: none;">
-                        <div class="image-section-header">
-                            <h4><i class="fas fa-images"></i> 武器图片管理</h4>
-                            <button id="uploadImageBtn" class="btn-primary btn-small">
-                                <i class="fas fa-upload"></i> 上传图片
-                            </button>
-                        </div>
-                        
-                        <!-- 图片上传区域 -->
-                        <div id="imageUploadArea" class="image-upload-area" style="display: none;">
-                            <div class="upload-form">
-                                <div class="file-input-wrapper">
-                                    <input type="file" id="weaponImageFile" accept="image/*">
-                                    <div class="file-input-content">
-                                        <i class="fas fa-cloud-upload-alt"></i>
-                                        <div>点击选择图片文件</div>
-                                        <small>支持 JPG, PNG, GIF, WebP 格式，最大 5MB</small>
-                                    </div>
-                                </div>
-                                <textarea id="weaponImageDescription" class="description-input" 
-                                          placeholder="请输入图片描述（可选）" rows="2"></textarea>
-                                <div class="upload-actions">
-                                    <button id="confirmUploadBtn" class="btn-success btn-small">
-                                        <i class="fas fa-check"></i> 确认上传
-                                    </button>
-                                    <button id="cancelUploadBtn" class="btn-secondary btn-small">
-                                        <i class="fas fa-times"></i> 取消
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+            </div>
 
-                        <!-- 图片展示区域 -->
-                        <div id="weaponImagesGrid" class="weapon-images-grid">
-                            <div class="loading-images">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                <span>正在加载图片...</span>
-                            </div>
-                        </div>
-
-                        <!-- 状态消息 -->
-                        <div id="imageMessage" class="image-message" style="display: none;"></div>
+            <!-- 世界地图容器 -->
+            <div id="map-container" class="world-map-container" style="display: none;">
+                <div class="map-legend">
+                    <h3>地图图例</h3>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #4ecdc4;"></span>
+                        <span class="legend-label">国家</span>
                     </div>
-
-                    <!-- 武器视频管理区域 -->
-                    <div id="weaponVideoSection" class="weapon-video-section" style="display: none;">
-                        <div class="video-section-header">
-                            <h4><i class="fas fa-video"></i> 武器视频管理</h4>
-                            <button id="manageVideoBtn" class="btn-primary btn-small">
-                                <i class="fas fa-video"></i> 管理视频
-                            </button>
-                        </div>
-                        
-                        <!-- 视频缩略图展示区域 -->
-                        <div id="weaponVideoThumbnails" class="weapon-video-thumbnails">
-                            <div class="loading-video-thumbnails">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                <span>正在加载视频...</span>
-                            </div>
-                        </div>
-
-                        <!-- 状态消息 -->
-                        <div id="videoMessage" class="video-message" style="display: none;"></div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #ff6b6b;"></span>
+                        <span class="legend-label">武器节点</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #ffbe0b;"></span>
+                        <span class="legend-label">制造商节点</span>
+                    </div>
+                </div>
+                <div id="map-visualization" class="map-visualization">
+                    <!-- D3.js将在这里渲染世界地图 -->
+                </div>
+                <div class="map-info">
+                    <h3>地图信息</h3>
+                    <div id="mapDetails">
+                        <p>点击国家或节点查看详细信息</p>
                     </div>
                 </div>
             </div>
 
             <section class="graph-analysis">
-    <h2>知识图谱数据可视化分析</h2>
-    <div class="graph-analysis-panels">
-        <!-- 节点类型分布 -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">节点类型分布</div>
-                <div class="card-actions">
-                    <button class="card-action-btn" title="刷新数据">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="nodeTypeDistributionChart"></canvas>
-            </div>
-        </div>
+                <h2>知识图谱数据可视化分析</h2>
+                <div class="graph-analysis-panels">
+                    <!-- 节点类型分布 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">节点类型分布</div>
+                            <div class="card-actions">
+                                <button class="card-action-btn" title="刷新数据">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="nodeTypeDistributionChart"></canvas>
+                        </div>
+                    </div>
 
-        <!-- 武器年代分布 -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">武器年代分布</div>
-                <div class="card-actions">
-                    <button class="card-action-btn" title="刷新数据">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="weaponYearChart"></canvas>
-            </div>
-        </div>
+                    <!-- 武器年代分布 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">武器年代分布</div>
+                            <div class="card-actions">
+                                <button class="card-action-btn" title="刷新数据">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weaponYearChart"></canvas>
+                        </div>
+                    </div>
 
-        <!-- 国家武器数量排行 -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">国家武器数量排行</div>
-                <div class="card-actions">
-                    <button class="card-action-btn" title="刷新数据">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="countryWeaponChart"></canvas>
-            </div>
-        </div>
+                    <!-- 国家武器数量排行 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">国家武器数量排行</div>
+                            <div class="card-actions">
+                                <button class="card-action-btn" title="刷新数据">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="countryWeaponChart"></canvas>
+                        </div>
+                    </div>
 
-        <!-- 武器类型分布 -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">武器类型分布</div>
-                <div class="card-actions">
-                    <button class="card-action-btn" title="刷新数据">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="weaponTypeChart"></canvas>
-            </div>
-        </div>
+                    <!-- 武器类型分布 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">武器类型分布</div>
+                            <div class="card-actions">
+                                <button class="card-action-btn" title="刷新数据">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weaponTypeChart"></canvas>
+                        </div>
+                    </div>
 
-        <!-- 制造商武器数量统计 -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">制造商武器数量统计</div>
-                <div class="card-actions">
-                    <button class="card-action-btn" title="刷新数据">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="manufacturerChart"></canvas>
-            </div>
-        </div>
+                    <!-- 制造商武器数量统计 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">制造商武器数量统计</div>
+                            <div class="card-actions">
+                                <button class="card-action-btn" title="刷新数据">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="manufacturerChart"></canvas>
+                        </div>
+                    </div>
 
-        <!-- 国家制造商分布 -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">国家制造商分布</div>
-                <div class="card-actions">
-                    <button class="card-action-btn" title="刷新数据">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
+                    <!-- 国家制造商分布 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">国家制造商分布</div>
+                            <div class="card-actions">
+                                <button class="card-action-btn" title="刷新数据">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="countryManufacturerChart"></canvas>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="countryManufacturerChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-</section>
+            </section>
         </main>
 
         <!-- 数据管理弹窗 -->
@@ -608,6 +581,7 @@
 
     <script src="scripts/auth.js"></script>
     <script src="scripts/common.js"></script>
+    <script src="scripts/dynamic-loaders.js"></script>
     <script src="scripts/weapon-data-batch-add.js"></script>
     <script src="scripts/knowledge-graph.js"></script>
     <script src="scripts/manufacturer-management.js"></script>
@@ -617,9 +591,13 @@
     <script src="scripts/knowledge-graph-analysis-fixed.js"></script>
     <script src="scripts/knowledge-graph-analysis-manufacturer-complete.js"></script>
     <script src="scripts/weapon-delete-fix.js"></script>
-    <script src="scripts/weapon-image-modal.js"></script>
     <script src="scripts/weapon-image-display.js"></script>
+    <script src="scripts/weapon-image-modal.js"></script>
     <script src="scripts/weapon-image-integration.js"></script>
     <script src="scripts/weapon-video-integration.js"></script>
+    <script src="scripts/weapon-model-integration.js"></script>
+    <!-- 新增世界地图可视化脚本 -->
+    <script src="scripts/map-api-integration.js"></script>
+    <script src="scripts/world-map-visualization.js"></script>
 </body>
 </html>
